@@ -1,66 +1,102 @@
-const express = require('express')
-const app = express()
-const port = 3000
-const path = require('path')
 const fs=require('fs')
-const storePath = path.join(__dirname,'./store.json')
-const bodyParser = require('body-parser')
+const path = require('path')
+const storePath=path.join(__dirname,'./store.json')
+const  express=require('express')
+const app=express()
+
+const bodyParser=require('body-parser')
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({extended: false}))
 
 
-const fileRead = () => {
-    let todos = JSON.parse(fs.readFileSync(storePath))
-    return todos
+
+
+
+
+const readFile=()=>{
+    const cosmeticItems=JSON.parse(fs.readFileSync(storePath))
+    return cosmeticItems
 }
-const writeFile = (data) => {
-    fs.writeFileSync(storePath, JSON.stringify(data), 'utf8')
+
+const writeFile=(rest)=>{
+    fs.writeFileSync(storePath,JSON.stringify(rest),'utf8')
 }
-//Create todo
-app.post("/todo", (req, res)=>{
-    const data = fileRead()
+
+
+app.post('/product',(req,res)=>{
+    const rest=readFile()
     console.log(req)
-    data.todos.push({id: Math.floor(Math.random()*10),...req.body.data})
-    writeFile(data)
-    res.json("Todo's successfully created..")
+    console.log(req.body.rest.name)
+    if(Object.keys(req.body.rest).length>7)
+    {
+        console.log("parameter should not exceed 7");
+       res.json({
+        Error: "osppja"
+       })
+    }
+
+    if(req.body.rest.name>=0 && req.body.rest.name<=9){
+       console.log(req.body.rest.name)
+       res.json({
+        Error:"kindly Enter the  vaild Input"
+         
+       })
+    
+    }
+    
+
+    rest.cosmeticItems.push({id: Math.floor(Math.random()*10),...req.body.rest})
+    writeFile(rest)
+    res.json('product is successfully Created')
 })
-// findall Todo
-app.get("/todos", (req, res)=>{
-    const data = fileRead()
+
+app.get('/products',(req,res)=>{
+    const show=readFile()
     res.json({
-        message: "your todo's",
-        data: data.todos 
-    })
+              messsage:'whole data',
+              data:show.cosmeticItems 
+        } )
+        
 })
-//update APi
-app.put("/todo/:id", (req, res)=>{
-    const {todos} = fileRead()
-    const updatedData = todos.map((data)=>{
-        if(req.params.id == data.id){
-            return {id: data.id,...req.body.data}
+
+
+app.put('/udpate/:id',(req,res)=>{
+      const {cosmeticItems}= readFile()
+      const updatedData=cosmeticItems.map((rest)=>{
+        if(req.params.id == rest.id){
+            return {id: rest.id,...req.body.rest}
+            
         }
-        return data
-    })
-    console.log(updatedData)
-    writeFile({todos: updatedData})
-    res.json({
-        message: "your data updated successfully",
-        data: {
-            ...req.body.data
+        return rest
+        
+      })
+      console.log(updatedData)
+      console.log(req.body.cosmeticItems)
+      writeFile({cosmeticItems:updatedData})
+      res.json({
+        message:"data updated successfully",
+        rest:{
+            ...req.body.rest
         }
-    })
+      })
 })
-app.delete("/todo/:id", (req, res)=>{
-    const {todos} = fileRead()
-    const deletedData = todos.filter(data => {
-        return req.params.id != data.id
+
+app.delete("/datadelete/:id",(req,res)=>{
+    const {cosmeticItems} =readFile()
+    const deletedata=cosmeticItems.filter(rest =>{
+        return req.params.id !=rest.id
     })
-    writeFile({todos: deletedData})
+    writeFile({cosmeticItems:deletedata})
     res.json({
-        message: "your data deleted successfully"
+        message:"your data deleted successfully"
     })
 })
 
-app.listen(port, ()=>{
-    console.log(`app listening on port ${port}`)
+
+
+
+
+app.listen(3000,()=>{
+    console.log(`Server was Worked`)
 })
+
